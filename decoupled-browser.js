@@ -53,7 +53,8 @@ module.exports = (function () {
     var parts = path.split('/');
 
     this.name = parts.shift();
-    this.type = parts.pop();
+    this.type = parts.shift();
+    this.args = parts;
   }
 
   /**
@@ -96,7 +97,7 @@ module.exports = (function () {
 
     repository.find(component.type, function (data) {
       done( Component._renderer.render(component.templatePath, data) );
-    });
+    }, component.args);
   };
 
   return Component;
@@ -170,14 +171,13 @@ module.exports = (function () {
    *
    * @return  {void}  Calls the callback when data is received
    */
-  Repository.CoreClass.prototype.find = function (/* [type], callback */) {
+  Repository.CoreClass.prototype.find = function (/* type, callback[, argsArray] */) {
     var args   = [].slice.call(arguments);
-    var done   = args.pop();   // Last argument is always a callback to call when data is loaded
-    var type   = args.shift(); // Type, when defined, should be the first argument
+    var type   = args[0]; // Type, when defined, should be the first argument
     var method = type ? 'find' + _titleize(type) : 'find'; // e.g. findRecent if type=recent, otherwise just "find"
 
     if (this[method]) {
-      this[method].call(this, done);
+      this[method].apply(this, args.slice(1));
     } else {
       throw new Error('Repository.CoreClass.prototype.find without type not allowed');
     }

@@ -46,7 +46,8 @@ module.exports = (function () {
     var parts = path.split('/');
 
     this.name = parts.shift();
-    this.type = parts.pop();
+    this.type = parts.shift();
+    this.args = parts;
   }
 
   /**
@@ -89,7 +90,7 @@ module.exports = (function () {
 
     repository.find(component.type, function (data) {
       done( Component._renderer.render(component.templatePath, data) );
-    });
+    }, component.args);
   };
 
   return Component;
