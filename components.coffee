@@ -71,34 +71,44 @@ class ComponentFactory
     new @componentClass @name
 
 
+
+
+# Temporary polyfill
+class Promise
+  constructor: (cb) ->
+    @cbks = []
+    cb.call @, (data) => cbk(data) for cbk in @cbks
+
+  then: (cb) ->
+    @cbks.push(cb)
+    @
+
+# Temporary polyfill
+class Component
+  @render = (data) ->
+    console.log 'Component#render', data
+    data
+
+
+
 console.log result for result in [
   ComponentFactory
     .get('articles')
-    .init(() -> this.endpoint = 'http://articles.com' )
+    .init(-> this.endpoint = 'http://articles.com' )
     .method('last', -> this.endpoint + '/last.json')
     .instance()
-    .last()
+    .last(),
+
+  ComponentFactory
+    .get('comments')
+    .init(-> this.endpoint = 'http://comments.com')
+    .method('all', -> new Promise (resolve, reject) ->
+      # Anything asynchronous here
+      # $.getJSON(this.endpoint).then(resolve, reject)
+
+      setTimeout(resolve.bind(null, { comments: [ 1,2,3 ] }), 3000)
+    )
+    .instance()
+    .all()
+    .then(Component.render)
 ]
-
-###
-
-ComponentRegistry
-  .get('articles')
-  .recent()
-  .then(Component.render);
-  .then(function (compiled) {
-    # Do whatever you want
-  });
-
-ComponentFactory
-  .create('articles', function (constructor) {
-    this.endpoint = 'http://articles.com/recent.json'
-  })
-  .method('recent', function () {
-    return new Promise(function (resolve, reject) {
-      $.getJSON(this.endpoint)
-        .then(resolve, reject)
-    })
-  })
-
-###

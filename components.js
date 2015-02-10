@@ -10,7 +10,7 @@
  */
 
 (function() {
-  var ComponentFactory, ComponentRegistry, result, _i, _len, _ref,
+  var Component, ComponentFactory, ComponentRegistry, Promise, result, _i, _len, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -116,39 +116,62 @@
 
   })();
 
+  Promise = (function() {
+    function Promise(cb) {
+      this.cbks = [];
+      cb.call(this, (function(_this) {
+        return function(data) {
+          var cbk, _i, _len, _ref, _results;
+          _ref = _this.cbks;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            cbk = _ref[_i];
+            _results.push(cbk(data));
+          }
+          return _results;
+        };
+      })(this));
+    }
+
+    Promise.prototype.then = function(cb) {
+      this.cbks.push(cb);
+      return this;
+    };
+
+    return Promise;
+
+  })();
+
+  Component = (function() {
+    function Component() {}
+
+    Component.render = function(data) {
+      console.log('Component#render', data);
+      return data;
+    };
+
+    return Component;
+
+  })();
+
   _ref = [
     ComponentFactory.get('articles').init(function() {
       return this.endpoint = 'http://articles.com';
     }).method('last', function() {
       return this.endpoint + '/last.json';
-    }).instance().last()
+    }).instance().last(), ComponentFactory.get('comments').init(function() {
+      return this.endpoint = 'http://comments.com';
+    }).method('all', function() {
+      return new Promise(function(resolve, reject) {
+        return setTimeout(resolve.bind(null, {
+          comments: [1, 2, 3]
+        }), 3000);
+      });
+    }).instance().all().then(Component.render)
   ];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     result = _ref[_i];
     console.log(result);
   }
-
-
-  /*
-  
-  ComponentRegistry
-    .get('articles')
-    .recent()
-    .then(Component.render);
-    .then(function (compiled) {
-       * Do whatever you want
-    });
-  
-  ComponentFactory
-    .create('articles', function (constructor) {
-      this.endpoint = 'http://articles.com/recent.json'
-    })
-    .method('recent', function () {
-      return new Promise(function (resolve, reject) {
-        $.getJSON(this.endpoint)
-          .then(resolve, reject)
-      })
-    })
-   */
 
 }).call(this);
