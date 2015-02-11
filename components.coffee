@@ -1,3 +1,24 @@
+######
+
+# Temporary polyfill
+class Promise
+  constructor: (cb) ->
+    @cbks = []
+    cb.call @, (data) => cbk(data) for cbk in @cbks
+
+  then: (cb) ->
+    @cbks.push(cb)
+    @
+
+# Temporary polyfill
+class Component
+  @render = (data) ->
+    console.log 'Component#render', data
+    data
+
+######
+
+
 ###
 
   Simple Registry for storing classes/instances application-wide
@@ -22,28 +43,40 @@ class ComponentRegistry
   Simple Factory/Facade for creating component classes and getting their instances
 
   ComponentFactory
-    .get('articles')                                                         // (1)
-    .init(function () { return this.endpoint = 'http://articles.com' })      // (2)
-    .method('last', function () { return this.endpoint + '/last.json' })     // (3)
-    .instance()                                                              // (4)
-    .last()                                                                  // (5)  => 'http://articles.com/last.json'
+    .get('articles')                                                                      // (1)
+    .init(function () { return this.endpoint = 'http://articles.com' })                   // (2)
+    .method('last', function (resolve, reject) { resolve(this.endpoint + '/last.json') }) // (3)
+    .instance()                                                                           // (4)
+    .last()                                                                               // (5)  => <Promise>
+    .then(function (data) {
+      // Do whatever you want with the data
+    })
+    .catch(function (error) {
+      // Catch errors
+    })
 
   // (1) Creates class if not yet defined, gets class if already defined
-  // (2) Sets initialisation method for Component Class
+  // (2) Sets initialisation method for Component Class (will return a Promise)
   // (3) Sets class method
   // (4) Returns new instance of the class
-  // (5) Calls previously defined method on the instance and returns the results
+  // (5) Calls previously defined method on the instance and returns a Promise
 
   ComponentFactory
-    .get('articles')                                                         // (6)
-    .method('recent', function () { return this.endpoint + '/recent.json' }) // (7)
-    .instance()                                                              // (8)
-    .recent()                                                                // (9)  => 'http://articles.com/recent.json'
+    .get('articles')                                                                        // (6)
+    .method('recent', function (resolve, reject) { resolve(this.endpoint + '/rcnt.json') }) // (7)
+    .instance()                                                                             // (8)
+    .recent()                                                                               // (9)  => <Promise>
+    .then(function (data) {
+      // Do whatever you want with the data
+    })
+    .catch(function (error) {
+      // Catch errors
+    })
 
   // (6) Gets previously defined class
-  // (7) Adds another method to the previously created class ('last' and 'recent' are now available)
+  // (7) Adds another method to the previously created class (will return a Promise)
   // (8) Returns new instance of the class
-  // (9) Calls previously defined method on the instance and returns the results
+  // (9) Calls previously defined method on the instance and returns a Promise
 
 ###
 class ComponentFactory
@@ -64,7 +97,7 @@ class ComponentFactory
     @
 
   method: (methodName, handler) ->
-    @componentClass.prototype[methodName] = handler
+    @componentClass.prototype[methodName] = => new Promise handler
     @
 
   instance: () ->
@@ -72,37 +105,21 @@ class ComponentFactory
 
 
 
-
-# Temporary polyfill
-class Promise
-  constructor: (cb) ->
-    @cbks = []
-    cb.call @, (data) => cbk(data) for cbk in @cbks
-
-  then: (cb) ->
-    @cbks.push(cb)
-    @
-
-# Temporary polyfill
-class Component
-  @render = (data) ->
-    console.log 'Component#render', data
-    data
-
-
-
 console.log result for result in [
   ComponentFactory
     .get('articles')
     .init(-> this.endpoint = 'http://articles.com' )
-    .method('last', -> this.endpoint + '/last.json')
+    .method('last', (resolve, reject) ->
+      setTimeout(resolve.bind(this, this.endpoint + '/last.json'))
+    )
     .instance()
-    .last(),
+    .last()
+    .then(Component.render),
 
   ComponentFactory
     .get('comments')
     .init(-> this.endpoint = 'http://comments.com')
-    .method('all', -> new Promise (resolve, reject) ->
+    .method('all', (resolve, reject) =>
       # Anything asynchronous here
       # $.getJSON(this.endpoint).then(resolve, reject)
 
