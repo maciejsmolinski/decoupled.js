@@ -154,11 +154,9 @@
     };
 
     ComponentFactory.prototype.method = function(methodName, handler) {
-      this.componentClass.prototype[methodName] = (function(_this) {
-        return function() {
-          return new Promise(handler);
-        };
-      })(this);
+      this.componentClass.prototype[methodName] = function() {
+        return new Promise(handler);
+      };
       return this;
     };
 

@@ -84,7 +84,7 @@ class ComponentFactory
 
   @baseClass = class CoreComponent
     constructor: (@name) ->
-      this.init?.apply(@, arguments)
+      @init?.apply(@, arguments)
 
   @get = (name, constructor) ->
     new ComponentFactory name
@@ -97,7 +97,7 @@ class ComponentFactory
     @
 
   method: (methodName, handler) ->
-    @componentClass.prototype[methodName] = => new Promise handler
+    @componentClass.prototype[methodName] = -> new Promise handler
     @
 
   instance: () ->
@@ -108,9 +108,9 @@ class ComponentFactory
 console.log result for result in [
   ComponentFactory
     .get('articles')
-    .init(-> this.endpoint = 'http://articles.com' )
+    .init(-> @endpoint = 'http://articles.com' )
     .method('last', (resolve, reject) ->
-      setTimeout(resolve.bind(this, this.endpoint + '/last.json'))
+      setTimeout(resolve.bind(@, @endpoint + '/last.json'))
     )
     .instance()
     .last()
@@ -118,10 +118,10 @@ console.log result for result in [
 
   ComponentFactory
     .get('comments')
-    .init(-> this.endpoint = 'http://comments.com')
+    .init(-> @endpoint = 'http://comments.com')
     .method('all', (resolve, reject) =>
       # Anything asynchronous here
-      # $.getJSON(this.endpoint).then(resolve, reject)
+      # $.getJSON(@endpoint).then(resolve, reject)
 
       setTimeout(resolve.bind(null, { comments: [ 1,2,3 ] }), 3000)
     )
