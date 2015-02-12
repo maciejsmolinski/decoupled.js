@@ -155,7 +155,7 @@
 
     ComponentFactory.prototype.method = function(methodName, handler) {
       this.componentClass.prototype[methodName] = function() {
-        return new Promise(handler);
+        return new Promise(handler.bind(this));
       };
       return this;
     };

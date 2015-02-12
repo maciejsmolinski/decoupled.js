@@ -97,7 +97,8 @@ class ComponentFactory
     @
 
   method: (methodName, handler) ->
-    @componentClass.prototype[methodName] = -> new Promise handler
+    @componentClass.prototype[methodName] = ->
+      new Promise handler.bind(@)
     @
 
   instance: () ->
