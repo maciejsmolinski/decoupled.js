@@ -1,58 +1,68 @@
-'use strict';
+;(function (exports) {
 
-class ComponentRegistry {
-  static registry = {}
+  class ComponentRegistry {
+    static registry = {}
 
-  static add (name, component) {
-    return this.registry[name] = component;
-  }
+    static add (name, component) {
+      return this.registry[name] = component;
+    }
 
-  static get (name) {
-    return this.registry[name];
-  }
-}
-
-
-class ComponentFactory {
-  static classes = {};
-
-  static BaseClass = class BaseClass {
-    constructor () {
-      this.init && this.init.apply(this, Array.from(arguments))
+    static get (name) {
+      return this.registry[name];
     }
   }
 
-  static get () {
-    return new this(Array.from(arguments))
+
+  class ComponentFactory {
+    static classes = {};
+
+    static BaseClass = class BaseClass {
+      constructor () {
+        this.init && this.init.apply(this, Array.from(arguments))
+      }
+    }
+
+    static get () {
+      return new this(Array.from(arguments))
+    }
+
+    constructor (name) {
+      ComponentFactory.classes[name] ?= class CustomComponent extends ComponentFactory.BaseClass {};
+      this.componentClass = ComponentFactory.classes[name];
+    }
+
+    init (handler) {
+      this.componentClass.prototype.init = handler;
+
+      return this;
+    }
+
+    method (methodName, handler) {
+      this.componentClass.prototype[methodName] = () =>
+        new Promise(handler.bind(this))
+
+      return this;
+    }
+
+    instance () {
+      return new this.componentClass;
+    }
   }
 
-  constructor (name) {
-    ComponentFactory.classes[name] ?= class CustomComponent extends ComponentFactory.BaseClass {};
-    this.componentClass = ComponentFactory.classes[name];
+  exports.DC ?= {
+    ComponentFactory: ComponentFactory,
+    ComponentRegistry: ComponentRegistry
   }
 
-  init (handler) {
-    this.componentClass.prototype.init = handler;
+}( this || global ));
 
-    return this;
-  }
 
-  method (methodName, handler) {
-    this.componentClass.prototype[methodName] = () =>
-      new Promise(handler.bind(this))
 
-    return this;
-  }
-
-  instance () {
-    return new this.componentClass;
-  }
-}
 
 /**
  * Define Component
  */
-ComponentFactory
+DC.ComponentFactory
   .get('fixtures-list')
   .init(function () { this.name = 'fixtures-list' })
   .method('last', (resolve, reject) => resolve('last') )
@@ -60,7 +70,7 @@ ComponentFactory
 /**
  * Retrieve Component, get instance, run the query
  */
-ComponentFactory
+DC.ComponentFactory
   .get('fixtures-list')
   .instance()
   .last()
@@ -69,7 +79,7 @@ ComponentFactory
 /**
  * Do the same again
  */
-ComponentFactory
+DC.ComponentFactory
   .get('fixtures-list')
   .instance()
   .last()
@@ -78,7 +88,7 @@ ComponentFactory
 /**
  * Add another query on the fly and query it
  */
-ComponentFactory
+DC.ComponentFactory
   .get('fixtures-list')
   .method('recent', (resolve, reject) => resolve('recent'))
   .instance()
