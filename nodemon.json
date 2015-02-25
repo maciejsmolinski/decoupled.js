@@ -1,0 +1,5 @@
+{
+  "execMap": {
+    "es6": "babel-node --playground"
+  }
+}

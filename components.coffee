@@ -4,7 +4,11 @@
 class Promise
   constructor: (cb) ->
     @cbks = []
-    cb.call @, (data) => cbk(data) for cbk in @cbks
+    cb.call @, (data) => cbk(data, data) for cbk in @cbks
+
+  catch: (cb) ->
+    @cbks.push(cb)
+    @
 
   then: (cb) ->
     @cbks.push(cb)
@@ -124,9 +128,23 @@ console.log result for result in [
       # Anything asynchronous here
       # $.getJSON(@endpoint).then(resolve, reject)
 
-      setTimeout(resolve.bind(null, { comments: [ 1,2,3 ] }), 3000)
+      setTimeout(resolve.bind(@, { comments: [ 1,2,3 ] }), 3000)
+    )
+    .instance()
+    .all()
+    .then(Component.render),
+
+  ComponentFactory
+    .get('comments')
+    .init(-> @endpoint = 'http://comments.com')
+    .method('all', (resolve, reject) =>
+      # Anything asynchronous here
+      # $.getJSON(@endpoint).then(resolve, reject)
+      console.log arguments
+      setTimeout(reject.bind(null, Error('Found an error while fetching articles')), 1000)
     )
     .instance()
     .all()
     .then(Component.render)
+    .catch(Component.render)
 ]
