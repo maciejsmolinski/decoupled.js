@@ -1,6 +1,6 @@
 ;(function (exports) {
 
-  class ComponentRegistry {
+  class Registry {
     static registry = {}
 
     static add (name, component) {
@@ -13,7 +13,7 @@
   }
 
 
-  class ComponentFactory {
+  class Factory {
     static classes = {};
 
     static BaseClass = class BaseClass {
@@ -27,8 +27,8 @@
     }
 
     constructor (name) {
-      ComponentFactory.classes[name] ?= class CustomComponent extends ComponentFactory.BaseClass {};
-      this.componentClass = ComponentFactory.classes[name];
+      Factory.classes[name] ?= class CustomComponent extends Factory.BaseClass {};
+      this.componentClass = Factory.classes[name];
     }
 
     init (handler) {
@@ -50,8 +50,8 @@
   }
 
   exports.DC ?= {
-    ComponentFactory: ComponentFactory,
-    ComponentRegistry: ComponentRegistry
+    Factory  : Factory,
+    Registry : Registry
   }
 
 }( this || global ));
@@ -62,7 +62,7 @@
 /**
  * Define Component
  */
-DC.ComponentFactory
+DC.Factory
   .get('fixtures-list')
   .init(function () { this.name = 'fixtures-list' })
   .method('last', (resolve, reject) => resolve('last') )
@@ -70,7 +70,7 @@ DC.ComponentFactory
 /**
  * Retrieve Component, get instance, run the query
  */
-DC.ComponentFactory
+DC.Factory
   .get('fixtures-list')
   .instance()
   .last()
@@ -79,7 +79,7 @@ DC.ComponentFactory
 /**
  * Do the same again
  */
-DC.ComponentFactory
+DC.Factory
   .get('fixtures-list')
   .instance()
   .last()
@@ -88,7 +88,7 @@ DC.ComponentFactory
 /**
  * Add another query on the fly and query it
  */
-DC.ComponentFactory
+DC.Factory
   .get('fixtures-list')
   .method('recent', (resolve, reject) => resolve('recent'))
   .instance()

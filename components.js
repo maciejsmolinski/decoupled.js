@@ -8,14 +8,14 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 
 var _hasOwn = Object.prototype.hasOwnProperty;
 ;(function (exports) {
-  var ComponentRegistry = (function () {
-    function ComponentRegistry() {
-      _classCallCheck(this, ComponentRegistry);
+  var Registry = (function () {
+    function Registry() {
+      _classCallCheck(this, Registry);
     }
 
-    ComponentRegistry.registry = {};
+    Registry.registry = {};
 
-    _prototypeProperties(ComponentRegistry, {
+    _prototypeProperties(Registry, {
       add: {
         value: function add(name, component) {
           return this.registry[name] = component;
@@ -32,41 +32,41 @@ var _hasOwn = Object.prototype.hasOwnProperty;
       }
     });
 
-    return ComponentRegistry;
+    return Registry;
   })();
 
-  var ComponentFactory = (function () {
-    function ComponentFactory(name) {
-      _classCallCheck(this, ComponentFactory);
+  var Factory = (function () {
+    function Factory(name) {
+      _classCallCheck(this, Factory);
 
-      var _ComponentFactory$classes = ComponentFactory.classes;
+      var _Factory$classes = Factory.classes;
       var _name = name;
-      if (!_hasOwn.call(_ComponentFactory$classes, _name)) _ComponentFactory$classes[_name] = (function (_ComponentFactory$BaseClass) {
+      if (!_hasOwn.call(_Factory$classes, _name)) _Factory$classes[_name] = (function (_Factory$BaseClass) {
         function CustomComponent() {
           _classCallCheck(this, CustomComponent);
 
-          if (_ComponentFactory$BaseClass != null) {
-            _ComponentFactory$BaseClass.apply(this, arguments);
+          if (_Factory$BaseClass != null) {
+            _Factory$BaseClass.apply(this, arguments);
           }
         }
 
-        _inherits(CustomComponent, _ComponentFactory$BaseClass);
+        _inherits(CustomComponent, _Factory$BaseClass);
 
         return CustomComponent;
-      })(ComponentFactory.BaseClass);
+      })(Factory.BaseClass);
 
-      this.componentClass = ComponentFactory.classes[name];
+      this.componentClass = Factory.classes[name];
     }
 
-    ComponentFactory.classes = {};
+    Factory.classes = {};
 
-    ComponentFactory.BaseClass = function BaseClass() {
+    Factory.BaseClass = function BaseClass() {
       _classCallCheck(this, BaseClass);
 
       this.init && this.init.apply(this, Array.from(arguments));
     };
 
-    _prototypeProperties(ComponentFactory, {
+    _prototypeProperties(Factory, {
       get: {
         value: function get() {
           return new this(Array.from(arguments));
@@ -106,20 +106,20 @@ var _hasOwn = Object.prototype.hasOwnProperty;
       }
     });
 
-    return ComponentFactory;
+    return Factory;
   })();
 
   var _exports = exports;
   if (!_hasOwn.call(_exports, "DC")) _exports.DC = {
-    ComponentFactory: ComponentFactory,
-    ComponentRegistry: ComponentRegistry
+    Factory: Factory,
+    Registry: Registry
   };
 })(undefined || global);
 
 /**
  * Define Component
  */
-DC.ComponentFactory.get("fixtures-list").init(function () {
+DC.Factory.get("fixtures-list").init(function () {
   this.name = "fixtures-list";
 }).method("last", function (resolve, reject) {
   return resolve("last");
@@ -128,21 +128,21 @@ DC.ComponentFactory.get("fixtures-list").init(function () {
 /**
  * Retrieve Component, get instance, run the query
  */
-DC.ComponentFactory.get("fixtures-list").instance().last().then(function (data) {
+DC.Factory.get("fixtures-list").instance().last().then(function (data) {
   return console.log("Result1: " + data);
 });
 
 /**
  * Do the same again
  */
-DC.ComponentFactory.get("fixtures-list").instance().last().then(function (data) {
+DC.Factory.get("fixtures-list").instance().last().then(function (data) {
   return console.log("Result2: " + data);
 });
 
 /**
  * Add another query on the fly and query it
  */
-DC.ComponentFactory.get("fixtures-list").method("recent", function (resolve, reject) {
+DC.Factory.get("fixtures-list").method("recent", function (resolve, reject) {
   return resolve("recent");
 }).instance().recent().then(function (data) {
   return console.log("Result3: " + data);
