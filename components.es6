@@ -44,8 +44,18 @@
       return this;
     }
 
+    static (propertyName, value) {
+      this.componentClass[propertyName] = value;
+
+      return this;
+    }
+
     instance () {
       return new this.componentClass;
+    }
+
+    class () {
+      return this.componentClass;
     }
   }
 
@@ -94,3 +104,20 @@ DC.Factory
   .instance()
   .recent()
   .then( (data) => console.log(`Result3: ${data}`) )
+
+
+/**
+ * Define static property, make sure it's shared between all instances
+ */
+DC.Factory
+  .get('counter')
+  .static('instantiated', 0)
+  .init(function () { this.constructor.instantiated++ })
+
+DC.Factory.get('counter').instance();
+DC.Factory.get('counter').instance();
+DC.Factory.get('counter').instance();
+
+console.log(
+  `Instances Count: ${DC.Factory.get('counter').class().instantiated}`
+)

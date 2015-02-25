@@ -97,9 +97,25 @@ var _hasOwn = Object.prototype.hasOwnProperty;
         writable: true,
         configurable: true
       },
+      "static": {
+        value: function _static(propertyName, value) {
+          this.componentClass[propertyName] = value;
+
+          return this;
+        },
+        writable: true,
+        configurable: true
+      },
       instance: {
         value: function instance() {
           return new this.componentClass();
+        },
+        writable: true,
+        configurable: true
+      },
+      "class": {
+        value: function _class() {
+          return this.componentClass;
         },
         writable: true,
         configurable: true
@@ -147,3 +163,16 @@ DC.Factory.get("fixtures-list").method("recent", function (resolve, reject) {
 }).instance().recent().then(function (data) {
   return console.log("Result3: " + data);
 });
+
+/**
+ * Define static property, make sure it's shared between all instances
+ */
+DC.Factory.get("counter")["static"]("instantiated", 0).init(function () {
+  this.constructor.instantiated++;
+});
+
+DC.Factory.get("counter").instance();
+DC.Factory.get("counter").instance();
+DC.Factory.get("counter").instance();
+
+console.log("Instances Count: " + DC.Factory.get("counter")["class"]().instantiated);
