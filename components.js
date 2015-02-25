@@ -140,4 +140,3 @@ ComponentFactory.get("fixtures-list").method("recent", function (resolve, reject
 }).instance().recent().then(function (data) {
   return console.log("Result3: " + data);
 });
-
