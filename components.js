@@ -86,10 +86,16 @@ var _hasOwn = Object.prototype.hasOwnProperty;
       },
       method: {
         value: function method(methodName, handler) {
-          var _this = this;
-
           this.componentClass.prototype[methodName] = function () {
-            return new Promise(handler.bind(_this));
+            var _this = this;
+
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+
+            return new Promise(function (resolve, reject) {
+              return handler.call(_this, resolve, reject, args);
+            });
           };
 
           return this;
@@ -156,11 +162,11 @@ DC.Factory.get("fixtures-list").instance().last().then(function (data) {
 });
 
 /**
- * Add another query on the fly and query it
+ * Add another query on the fly and query it with args
  */
-DC.Factory.get("fixtures-list").method("recent", function (resolve, reject) {
-  return resolve("recent");
-}).instance().recent().then(function (data) {
+DC.Factory.get("fixtures-list").method("recent", function (resolve, reject, args) {
+  return resolve("" + args[0] + " recent fixtures");
+}).instance().recent(5).then(function (data) {
   return console.log("Result3: " + data);
 });
 

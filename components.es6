@@ -38,8 +38,9 @@
     }
 
     method (methodName, handler) {
-      this.componentClass.prototype[methodName] = () =>
-        new Promise(handler.bind(this))
+      this.componentClass.prototype[methodName] = function (...args) {
+        return new Promise((resolve, reject) => handler.call(this, resolve, reject, args));
+      }
 
       return this;
     }
@@ -96,13 +97,13 @@ DC.Factory
   .then( (data) => console.log(`Result2: ${data}`) );
 
 /**
- * Add another query on the fly and query it
+ * Add another query on the fly and query it with args
  */
 DC.Factory
   .get('fixtures-list')
-  .method('recent', (resolve, reject) => resolve('recent'))
+  .method('recent', (resolve, reject, args) => resolve(`${args[0]} recent fixtures`))
   .instance()
-  .recent()
+  .recent(5)
   .then( (data) => console.log(`Result3: ${data}`) )
 
 
