@@ -17,13 +17,13 @@
     static classes = {};
 
     static BaseClass = class BaseClass {
-      constructor () {
-        this.init && this.init.apply(this, Array.from(arguments))
+      constructor (...args) {
+        this.init && this.init.call(this, args);
       }
     }
 
-    static get () {
-      return new this(Array.from(arguments))
+    static get (...args) {
+      return new this(args);
     }
 
     constructor (name) {
@@ -65,10 +65,7 @@
     Registry : Registry
   }
 
-}( this || global ));
-
-
-
+}(new Function ('return this || global;')()));
 
 /**
  * Define Component

@@ -61,15 +61,23 @@ var _hasOwn = Object.prototype.hasOwnProperty;
     Factory.classes = {};
 
     Factory.BaseClass = function BaseClass() {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
       _classCallCheck(this, BaseClass);
 
-      this.init && this.init.apply(this, Array.from(arguments));
+      this.init && this.init.apply(this, args);
     };
 
     _prototypeProperties(Factory, {
       get: {
         value: function get() {
-          return new this(Array.from(arguments));
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          return new this(args);
         },
         writable: true,
         configurable: true
@@ -136,7 +144,7 @@ var _hasOwn = Object.prototype.hasOwnProperty;
     Factory: Factory,
     Registry: Registry
   };
-})(undefined || global);
+})(new Function("return this || global;")());
 
 /**
  * Define Component
