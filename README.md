@@ -97,9 +97,11 @@ DC.Component.render('profiles/recent', function (compiled) {
 ## How this works
 
 `Component.render('profiles/recent' function (compiled) { /* ... */ });`
+
 1. Retrieves data using new `<RepositoryClass>.Profiles` object with `.find('recent', cb)` method
 2. Once done, calls rendering engine, e.g. `<RendererObject>.render('profiles/recent', data')` with retrieved data
 3. Passes back `compiled` template to the callback 
 
 ## Contributing
+
 Feel free to contribute or contact me at contact@maciejsmolinski.com with any questions
